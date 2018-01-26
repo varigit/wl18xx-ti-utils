@@ -557,7 +557,7 @@ static void free_file(void *buffer)
 static int write_file(const char *filename, const void *buffer, size_t size)
 {
 	FILE *file;
-	int ret;
+	int ret = 0;
 
 	file = fopen(filename, "w");
 	if (!file) {
