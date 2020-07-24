@@ -32,15 +32,21 @@ print_dump()
 print_summary()
 {
 	echo ""
+	echo "---------------------------------------------------------"
+	echo ""
 	echo "The device has been successfully configured."
 	echo "TI Module: "$ti_mod
 	echo "Chip Flavor: "$CHIP_FLAVOR
+	echo "Base INI file used: "$ini_file_name
 	echo "Number of 2.4GHz Antennas Fitted: "$number_2_4G_antenna
 	echo "Number of 5GHz Antennas Fitted: "$number_5G_antenna
 	echo "Diversity Support: "$diversity_5g
 	echo "SISO40 Support: "$siso40mhz
 	echo "Japanese Standards Applied: "$japan
-	echo "Class 2 Permissive Change (C2PC) Applied: "$c2pc
+	# Class 2 Permissive Change (C2PC) is always applied 
+	#echo "Class 2 Permissive Change (C2PC) Applied: "$c2pc
+	echo ""
+	echo "---------------------------------------------------------"
 	echo ""
 }
 
@@ -100,7 +106,9 @@ done
 JP_STANDARD=-1;
 japan="n";
 jp_support=0;
-C2PC=-1;
+#Class 2 Permissive Change (C2PC) is made deafault
+#C2PC=-1;
+C2PC=0;
 c2pc="n";
 c2pc_support=0;
 
@@ -108,11 +116,11 @@ if [ $TI_MODULE -eq 0 ]; then
 	ini_file_name="WL8_COB_INI.ini"
 else
 	case $CHIP_FLAVOR in
-			1801) ini_file_name="WL1835MOD_INI.ini";;
-			1805) ini_file_name="WL1835MOD_INI.ini"; c2pc_support=1;;
+			1801) ini_file_name="WL1835MOD_INI_C2PC.ini";;
+			1805) ini_file_name="WL1835MOD_INI_C2PC.ini"; c2pc_support=1;;
 			1807) ini_file_name="WL1837MOD_INI_FCC_CE.ini"; jp_support=1;;
-			1831) ini_file_name="WL1835MOD_INI.ini";;
-			1835) ini_file_name="WL1835MOD_INI.ini"; c2pc_support=1;;
+			1831) ini_file_name="WL1835MOD_INI_C2PC.ini";;
+			1835) ini_file_name="WL1835MOD_INI_C2PC.ini"; c2pc_support=1;;
 			1837) ini_file_name="WL1837MOD_INI_FCC_CE.ini"; jp_support=1;;
 			0) ini_file_name="WL1835MOD_INI.ini";;
 	esac
