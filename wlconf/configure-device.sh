@@ -106,42 +106,20 @@ done
 JP_STANDARD=-1;
 japan="n";
 jp_support=0;
-#Class 2 Permissive Change (C2PC) is made deafault
-#C2PC=-1;
-C2PC=0;
-c2pc="n";
-c2pc_support=0;
 
 if [ $TI_MODULE -eq 0 ]; then
 	ini_file_name="WL8_COB_INI.ini"
 else
 	case $CHIP_FLAVOR in
 			1801) ini_file_name="WL1835MOD_INI_C2PC.ini";;
-			1805) ini_file_name="WL1835MOD_INI_C2PC.ini"; c2pc_support=1;;
+			1805) ini_file_name="WL1835MOD_INI_C2PC.ini";;
 			1807) ini_file_name="WL1837MOD_INI_FCC_CE.ini"; jp_support=1;;
 			1831) ini_file_name="WL1835MOD_INI_C2PC.ini";;
-			1835) ini_file_name="WL1835MOD_INI_C2PC.ini"; c2pc_support=1;;
+			1835) ini_file_name="WL1835MOD_INI_C2PC.ini";;
 			1837) ini_file_name="WL1837MOD_INI_FCC_CE.ini"; jp_support=1;;
 			0) ini_file_name="WL1835MOD_INI.ini";;
 	esac
 
-	while [ $C2PC -eq -1 ]
-        do
-                if [ $c2pc_support -eq 1 ]; then
-                        read -p 'Should certification Class 2 Permissive Change (C2PC) due to higher antenna gain (max 3.2dBm) be applied? [y/n] : ' c2pc
-                        case $c2pc in
-                                "n") ini_file_name="WL1835MOD_INI.ini";C2PC=0;;
-                                "N") ini_file_name="WL1835MOD_INI.ini";C2PC=0;;
-                                "y") ini_file_name="WL1835MOD_INI_C2PC.ini";C2PC=0;;
-                                "Y") ini_file_name="WL1835MOD_INI_C2PC.ini";C2PC=0;;
-                                *) echo "Please enter y or n";C2PC=-1;continue;;
-                        esac
-                else
-                        # set to required number to exit loop
-                        C2PC=$c2pc_support;
-                fi
-        done
-	
 	while [ $JP_STANDARD -eq -1 ]
 	do
 		if [ $jp_support -eq 1 ]; then
