@@ -2,7 +2,7 @@
 # Script to run on the target to configure the wl18xx-conf.bin file to match the device capabilities
 
 # version
-VERSION=1.3
+VERSION=1.4
 
 # defaults
 binary_name="/lib/firmware/ti-connectivity/wl18xx-conf.bin"
@@ -45,6 +45,9 @@ print_summary()
 	echo "Japanese Standards Applied: "$japan
 	# Class 2 Permissive Change (C2PC) is always applied 
 	#echo "Class 2 Permissive Change (C2PC) Applied: "$c2pc
+if [ $TI_MODULE -eq 0 ]; then
+	echo "105C Support:" $temp105
+fi
 	echo ""
 	echo "---------------------------------------------------------"
 	echo ""
@@ -103,6 +106,13 @@ done
 
 
 # decide upon the correct ini file
+
+temp105="y";
+SUPPORT_105=-1;
+HIGHTEMP_TXPOWER=-1;
+low_band_component_type=-1;
+spare0=0x80
+spare1=0x22
 JP_STANDARD=-1;
 japan="n";
 jp_support=0;
@@ -219,6 +229,46 @@ do
 	fi
 done
 
+if [ $TI_MODULE -eq 0 ]; then
+
+	while [ $SUPPORT_105 -eq -1 ]
+	do
+		read -p 'Does COB Design support RF switch with 105C range ( default is 85C ) ? [y/n] : ' support105
+			case $support105 in
+				"n") SUPPORT_105=0;temp105="n";low_band_component_type=0x5;;
+				"N") SUPPORT_105=0;temp105="n";low_band_component_type=0x5;;
+				"y") SUPPORT_105=1;temp105="y";low_band_component_type=0x8;;  			 
+				"Y") SUPPORT_105=1;temp105="y";low_band_component_type=0x8;;
+				*) echo "Please enter y or n";SUPPORT_105=-1;continue;;
+			esac
+
+
+	done
+
+
+	if [ $SUPPORT_105 -eq 1 ]; then
+		
+		while [ $HIGHTEMP_TXPOWER -eq -1 ]
+		do
+			read -p 'Reduce Tx Power at Higher Temperature ( default is 'n' ) ? [y/n] : ' hightemp_reduce_txpower
+
+			case $hightemp_reduce_txpower in
+                       		 "n") HIGHTEMP_TXPOWER=0;spare0=0x80;;
+                        	 "N") HIGHTEMP_TXPOWER=0;spare0=0x80;;
+                        	 "y") HIGHTEMP_TXPOWER=1;spare0=0x90;;
+                        	 "Y") HIGHTEMP_TXPOWER=1;spare0=0x90;;
+                        	 *) echo "Please enter y or n.";HIGHTEMP_TXPOWER=-1;continue;;
+
+        		esac
+		done
+	
+
+	fi
+
+		
+fi
+
+
 # remove the wlcore_sdio module before updating the bin file
 rmmod wlcore_sdio
 
@@ -233,6 +283,12 @@ cd $wlconf_path
 ./wlconf -i $binary_name -o $binary_name -s wl18xx.phy.number_of_assembled_ant5=$number_5G_antenna
 ./wlconf -i $binary_name -o $binary_name -s wl18xx.phy.high_band_component_type=$high_band_component_type
 ./wlconf -i $binary_name -o $binary_name -s wl18xx.ht.mode=$ht_mode
+./wlconf -i $binary_name -o $binary_name -s wl18xx.phy.spare1=$spare1
+
+if [ $TI_MODULE -eq 0 ]; then
+./wlconf -i $binary_name -o $binary_name -s wl18xx.phy.low_band_component_type=$low_band_component_type
+./wlconf -i $binary_name -o $binary_name -s wl18xx.phy.spare0=$spare0
+fi
 
 print_summary
 
